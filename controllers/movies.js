@@ -12,7 +12,7 @@ const getMovies = (req, res, next) => {
     .catch(next);
 };
 
-// POST # создаёт фильм с переданными в теле
+// POST # создаёт фильм с переданными
 // # country, director, duration, year, description,
 // image, trailer, nameRU, nameEN и thumbnail, movieId
 const createMovie = (req, res, next) => {
