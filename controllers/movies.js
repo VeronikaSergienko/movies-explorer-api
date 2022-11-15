@@ -5,7 +5,8 @@ const ValidationError = require('../errors/ValidationError');
 
 // GET /movies — возвращает все фильмы
 const getMovies = (req, res, next) => {
-  Movie.find({})
+  const owner = req.user._id;
+  Movie.find({ owner })
     .then((movies) => {
       res.send(movies);
     })
@@ -16,38 +17,9 @@ const getMovies = (req, res, next) => {
 // # country, director, duration, year, description,
 // image, trailer, nameRU, nameEN и thumbnail, movieId
 const createMovie = (req, res, next) => {
-  const {
-    country,
-    director,
-    duration,
-    year,
-    description,
-    image,
-    trailerLink,
-    nameRU,
-    nameEN,
-    thumbnail,
-    movieId,
-  } = req.body;
-  const ownerId = req.user._id;
-  Movie.create({
-    country,
-    director,
-    duration,
-    year,
-    description,
-    image,
-    trailerLink,
-    nameRU,
-    nameEN,
-    thumbnail,
-    owner: ownerId,
-    movieId,
-  })
+  const owner = req.user._id;
+  Movie.create({ ...req.body, owner })
     .then((movie) => {
-      if (!movie) {
-        throw new NotFound('Фильм с указанным _id не найден.');
-      }
       res.send(movie);
     })
     .catch((err) => {
@@ -72,7 +44,7 @@ const deleteMovie = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        next(new NotFound('не корректный id'));
+        next(new ForbiddenError('Нет доступа к удалению фильма'));
       } else {
         next(err);
       }

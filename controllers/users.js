@@ -11,25 +11,16 @@ const { NODE_ENV, JWT_SECRET } = process.env;
 const login = (req, res, next) => {
   const { email, password } = req.body;
   return User.findOne({ email }).select('+password')
+    .orFail(new AuthorizedError('Передан неверный логин или пароль'))
     .then((user) => {
-      if (!user) {
-        throw new AuthorizedError({ message: 'Передан неверный логин или пароль' });
-      }
       bcrypt.compare(password, user.password, (err, isValidPassword) => {
         if (!isValidPassword) {
-          throw new AuthorizedError('Передан неверный логин или пароль');
+          next(new AuthorizedError('Передан неверный логин или пароль'));
         }
         const token = jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret', { expiresIn: '7d' });
         return res.status(200).send({ token });
       });
     })
-    .catch(next);
-};
-
-// GET /users — возвращает всех пользователей
-const getUser = (req, res, next) => {
-  User.find({})
-    .then((user) => res.send(user))
     .catch(next);
 };
 
@@ -42,10 +33,10 @@ const createUser = (req, res, next) => {
       password: hash,
     }))
     .then(({
-      name, email, createdAt, _id,
+      name, email, _id,
     }) => {
       res.send({
-        name, email, createdAt, _id,
+        name, email, _id,
       });
     })
     .catch((err) => {
@@ -65,9 +56,6 @@ const getProfile = (req, res, next) => {
   User.findById(ownerId)
     .orFail(new NotFound('Пользователь не найден'))
     .then((user) => {
-      if (!user) {
-        throw new NotFound('Нет пользователя с таким id');
-      }
       res.send(user);
     })
     .catch(next);
@@ -81,7 +69,9 @@ const patchUserId = (req, res, next) => {
     .orFail(new NotFound('Пользователь не найден'))
     .then((user) => res.send(user))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err.code === 11000) {
+        res.status(409).json({ message: 'Пользователь с таким email уже существует' });
+      } else if (err.name === 'ValidationError') {
         next(new ValidationError('Переданы некорректные данные'));
       } else {
         next(err);
@@ -90,5 +80,5 @@ const patchUserId = (req, res, next) => {
 };
 
 module.exports = {
-  getUser, createUser, patchUserId, login, getProfile,
+  createUser, patchUserId, login, getProfile,
 };

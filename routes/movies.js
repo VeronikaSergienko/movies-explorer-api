@@ -6,25 +6,27 @@ const {
 
 router.get('/', getMovies);
 
+const { regExpURL } = require('../utils/constants');
+
 router.post('/', celebrate({
   body: Joi.object().keys({
-    country: Joi.string().required(true),
-    director: Joi.string().required(true),
-    duration: Joi.number().required(true),
-    year: Joi.number().required(true),
-    description: Joi.string().required(true),
-    image: Joi.string().required(true),
-    trailerLink: Joi.string().required(true),
-    thumbnail: Joi.string().required(true),
-    nameRU: Joi.string().required(true),
-    nameEN: Joi.string().required(true),
-    movieId: Joi.number().required(true),
+    country: Joi.string().required(),
+    director: Joi.string().required(),
+    duration: Joi.number().required(),
+    year: Joi.string().required(),
+    description: Joi.string().required(),
+    image: Joi.string().required().regex(regExpURL),
+    trailerLink: Joi.string().required().regex(regExpURL),
+    thumbnail: Joi.string().required().regex(regExpURL),
+    nameRU: Joi.string().required(),
+    nameEN: Joi.string().required(),
+    movieId: Joi.number().required(),
   }),
 }), createMovie);
 
 router.delete('/:movieId', celebrate({
   params: Joi.object().keys({
-    movieId: Joi.string().alphanum().length(24).hex(),
+    movieId: Joi.string().length(24).hex(),
   }),
 }), deleteMovie);
 

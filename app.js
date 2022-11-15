@@ -17,7 +17,7 @@ const {
 const { errorsHandler } = require('./middlewares/errorsHandler');
 const cors = require('./middlewares/cors');
 
-const { PORT = 3000 } = process.env;
+const { PORT = 3000, DATABASE_URL } = process.env;
 const app = express();
 app.use(cors);
 app.use(bodyParser.json());
@@ -29,7 +29,7 @@ const NotFound = require('./errors/NotFound');
 app.use(express.static(path.join(__dirname, 'public')));
 
 // подключаемся к серверу mongo
-mongoose.connect('mongodb://localhost:27017/bitfilmsdb');
+mongoose.connect(DATABASE_URL);
 
 app.use(requestLogger); // подключаем логгер запросов
 
@@ -48,7 +48,7 @@ app.post('/signin', celebrate({
 
 app.post('/signup', celebrate({
   body: Joi.object().keys({
-    name: Joi.string().min(2).max(30),
+    name: Joi.string().min(2).max(30).required(),
     email: Joi.string().required().email(),
     password: Joi.string().required(),
   }),
