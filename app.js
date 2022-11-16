@@ -12,12 +12,10 @@ const {
   login, createUser,
 } = require('./controllers/users');
 
-// const { regExpURL } = require('./utils/constants');
-
 const { errorsHandler } = require('./middlewares/errorsHandler');
 const cors = require('./middlewares/cors');
 
-const { PORT = 3000, DATABASE_URL } = process.env;
+const { PORT = 3000, DATABASE_URL, NODE_ENV } = process.env;
 const app = express();
 app.use(cors);
 app.use(bodyParser.json());
@@ -29,7 +27,7 @@ const NotFound = require('./errors/NotFound');
 app.use(express.static(path.join(__dirname, 'public')));
 
 // подключаемся к серверу mongo
-mongoose.connect(DATABASE_URL);
+mongoose.connect(NODE_ENV === 'production' ? DATABASE_URL : 'mongodb://localhost:27017/moviesdb');
 
 app.use(requestLogger); // подключаем логгер запросов
 

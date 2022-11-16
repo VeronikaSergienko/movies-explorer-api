@@ -4,6 +4,7 @@ const User = require('../models/user');
 const NotFound = require('../errors/NotFound');
 const AuthorizedError = require('../errors/AuthorizedError');
 const ValidationError = require('../errors/ValidationError');
+const ConflictError = require('../errors/ConflictError');
 
 const { NODE_ENV, JWT_SECRET } = process.env;
 
@@ -15,13 +16,13 @@ const login = (req, res, next) => {
     .then((user) => {
       bcrypt.compare(password, user.password, (err, isValidPassword) => {
         if (!isValidPassword) {
-          next(new AuthorizedError('Передан неверный логин или пароль'));
+          return next(new AuthorizedError('Передан неверный логин или пароль'));
         }
         const token = jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret', { expiresIn: '7d' });
         return res.status(200).send({ token });
       });
     })
-    .catch(next);
+    .catch((err) => next(err));
 };
 
 // POST /signup — создаёт пользователя
@@ -41,7 +42,7 @@ const createUser = (req, res, next) => {
     })
     .catch((err) => {
       if (err.code === 11000) {
-        res.status(409).json({ message: 'Пользователь с таким email уже существует' });
+        next(new ConflictError('Пользователь с таким email уже существует'));
       } else if (err.name === 'ValidationError') {
         next(new ValidationError('Переданы некорректные данные'));
       } else {
@@ -70,7 +71,7 @@ const patchUserId = (req, res, next) => {
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.code === 11000) {
-        res.status(409).json({ message: 'Пользователь с таким email уже существует' });
+        next(new ConflictError('Пользователь с таким email уже существует'));
       } else if (err.name === 'ValidationError') {
         next(new ValidationError('Переданы некорректные данные'));
       } else {

@@ -39,12 +39,13 @@ const deleteMovie = (req, res, next) => {
     .then((movie) => {
       if (ownerId === movie.owner.toString()) {
         movie.delete()
-          .then(() => res.status(200).json({ message: 'Запись успешно удалена' }));
+          .then(() => res.status(200).json({ message: 'Запись успешно удалена' }))
+          .catch(next);
       } else { throw new ForbiddenError('Запись может удалять только владелец записи.'); }
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        next(new ForbiddenError('Нет доступа к удалению фильма'));
+        next(new ValidationError('Не корректный id'));
       } else {
         next(err);
       }
