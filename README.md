@@ -2,8 +2,8 @@
 ------------------------------------
 API для аутентификации пользователей и сохранения фильмов.
 
-IP 62.84.112.144
-* [URL](https://api.movies.vss.nomoredomains.icu/)
+IP 185.177.219.176
+* [URL](https://api.vss.students.nomoredomains.monster/)
 
 ------------------------------------
 
