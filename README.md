@@ -13,10 +13,20 @@ IP 185.177.219.176
 * winston
 * express-winston
 * Expressjs
-* nodemon
+* React
 * dotenv
 * cors
 * mongoose
 * bcryptjs
 * jsonwebtoken
-* eslint
+* JavaScript
+
+**Как установить и запустить проект:**  
+
+------ 
+1. Клонировать репозиторий:    
+``` git clone https://github.com/VeronikaSergienko/movies-explorer-api.git ```
+2. Установить зависимости:  
+``` npm install ```
+3. Запустить проект на localhost:  
+``` npm start ```
